@@ -1,4 +1,4 @@
-# 雨课堂智能题库抓取工具 (Yuketang Interactive Spider)
+# 第一部分：雨课堂智能题库抓取工具 (Yuketang Interactive Spider)
 
 这是一个基于 **Selenium** 和 **Pandas** 开发的交互式 Python 爬虫工具。它可以辅助用户在雨课堂 Web 端进行练习时，自动抓取题目、选项及正确答案，并将其整理保存为 Excel 题库文件，方便后续复习。
 
@@ -96,7 +96,108 @@ SAVE_PATH = "/Users/AndyRONG/Downloads/雨课堂题库_智能版.xlsx"
 
 -----
 
+# 第二部分：题库 Excel 转 PDF 生成器 (Excel to PDF Quiz Generator)
+
+这是一个基于 Python 的实用工具，用于将 Excel 格式的题库自动转换为排版精美的 PDF 文件。
+
+该工具专为整理“雨课堂”等平台的题库设计，能够一键生成两个版本的 PDF：
+1.  **解析版**：每道题下方紧跟正确答案，适合背诵和复习。
+2.  **练习版**：题目中不含答案，并在文档末尾附带答案速查表（方阵格式），适合模拟自测。
+
+## ✨ 功能特点
+
+* **双模式输出**：同时生成“解析版”和“练习版”两个 PDF 文件。
+* **智能排版**：
+    * 自动识别单选题和多选题，并分章节排版。
+    * 题目与选项智能防跨页截断（KeepTogether），阅读体验极佳。
+    * 练习版末尾自动生成矩阵式的答案速查表。
+* **跨平台字体支持**：自动检测 macOS 和 Windows 系统下的常用中文字体（如 SimHei, PingFang, Songti 等），无需繁琐配置。
+* **PDF 安全保护**：支持设置 PDF 权限（如禁止修改、禁止复制等）。
+* **macOS 兼容性修复**：内置针对 macOS OpenSSL 环境的 `hashlib` 补丁，解决 ReportLab 在特定环境下的报错问题。
+
+## 🛠 环境依赖
+
+本项目依赖 Python 3.x 及以下第三方库：
+
+* `pandas` (数据处理)
+* `openpyxl` (读取 Excel 引擎)
+* `reportlab` (PDF 生成核心)
+
+### 安装依赖
+
+```bash
+pip install pandas openpyxl reportlab
+````
+
+## 📂 数据格式要求
+
+请准备一个 `.xlsx` Excel 文件，数据表头（第一行）需包含以下列名：
+
+| 列名 | 说明 |
+| :--- | :--- |
+| **题目** | 题干内容 |
+| **答案** | 正确选项（如 "A", "ABC"） |
+| **A** | 选项 A 的内容 |
+| **B** | 选项 B 的内容 |
+| **...** | 更多选项 (C, D, E...) |
+
+> **注意**：程序会自动过滤掉内容为空的选项列。
+
+## 🚀 快速开始
+
+1.  克隆本项目到本地：
+
+    ```bash
+    git clone [https://github.com/AndyRong921/Excel-to-PDF-Quiz-Generator.git](https://github.com/AndyRong921/Excel-to-PDF-Quiz-Generator.git)
+    cd Excel-to-PDF-Quiz-Generator
+    ```
+
+2.  将你的题库 Excel 文件放入项目目录（例如命名为 `question_bank.xlsx`）。
+
+3.  修改脚本 `paiban.py` 顶部的配置区域：
+
+    ```python
+    # ================= 配置区域 =================
+    INPUT_EXCEL_NAME = "question_bank.xlsx"  # 你的输入文件名
+    OUTPUT_PREFIX = "自定义姓名"        # 输出文件名前缀
+    HEADER_TEXT = "适用学期：2025年秋季学期"   # PDF 页眉文字
+    # ===========================================
+    ```
+
+4.  运行脚本：
+
+    ```bash
+    python paiban.py
+    ```
+
+5.  运行成功后，你将在同目录下看到生成的两个 PDF 文件（解析版 & 练习版）。
+
+## ⚙️ 高级配置
+
+### PDF 加密与权限
+
+在 `paiban.py` 代码中，你可以修改 `StandardEncryption` 的参数来调整 PDF 权限：
+
+```python
+encrypt_config = StandardEncryption(
+    userPassword="",                 # 打开密码（留空则直接打开）
+    ownerPassword="YourSecretPassword", # 权限密码
+    canPrint=1,                      # 允许打印
+    canModify=0,                     # 禁止修改
+    canCopy=1                        # 允许复制文本
+)
+```
+
+## 📝 License
+
+[MIT License](https://www.google.com/search?q=LICENSE)
+
+-----
 如果觉得好用，欢迎点个 Star ⭐️！
+**Author**: [AndyRong921](https://www.google.com/search?q=https://github.com/AndyRong921)
+
+```
+
 
 ```
 
