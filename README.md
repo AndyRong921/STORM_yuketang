@@ -177,7 +177,8 @@ encrypt_config = StandardEncryption(
     canCopy=1                        # 允许复制文本
 )
 ```
-
+## 写在最后
+本项目由于作者时间有限，仅实现了半自动化（其中提交、查看答案等操作均需手动化），欢迎各位OUCer传承此项目，继续开发登录后“一条龙自动化”项目，有意开发者可联系作者！
 ## 📝 License
 
 [MIT License](https://www.google.com/search?q=LICENSE)
