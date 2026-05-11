@@ -1,0 +1,6 @@
+pandas
+openpyxl
+selenium
+webdriver-manager
+reportlab
+pdfplumber

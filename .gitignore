@@ -26,3 +26,4 @@ msedgedriver.exe
 .DS_Store
 .idea/
 .vscode/
+!requirements.txt
