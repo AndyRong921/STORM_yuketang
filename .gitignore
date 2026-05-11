@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environments
+venv/
+env/
+.venv/
+yuketang_env/
+
+# Generated files
+*.xlsx
+*.xls
+*.pdf
+*.txt
+
+# Browser drivers
+chromedriver
+chromedriver.exe
+msedgedriver
+msedgedriver.exe
+
+# OS / IDE
+.DS_Store
+.idea/
+.vscode/
