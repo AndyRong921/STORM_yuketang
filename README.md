@@ -1,294 +1,402 @@
-# 第一部分：雨课堂智能题库抓取工具 (Yuketang Interactive Spider) 
+# 雨课堂题库工具箱 (Yuketang Toolkit)
 
-这是一个基于 **Selenium** 和 **Pandas** 开发的交互式 Python 爬虫工具。它可以辅助用户在雨课堂 Web 端进行练习时，自动抓取题目、选项及正确答案，并将其整理保存为 Excel 题库文件，方便后续复习。本部分代码见**paquxin.py**
-## **更新[2025.12.17]** 
-更新了可加载历史爬取文件的功能函数，如若之前爬取过可通过设置路径使得程序自动抓取到之前爬取的题目，然后在此基础上可继续开始新的爬取。
+> 本项目延续自原 **STORM_yuketang** 项目，在原有「题库抓取」「Excel 转 PDF」「PDF 题库差异比对」三部分功能基础上，整合为一个图形化工具箱。  
+> 新版本保留原项目“半自动、可复习、可整理”的使用思路，并进一步加入浏览器连接、自动循环抓取、GUI 操作和跨平台适配。
+
+## 更新说明 [2026.05]
+
+本版本将原项目中的多个独立脚本整合为一个 GUI 程序：
+
+- 原 `paquxin.py` 的雨课堂题目抓取功能，整合为 **自动抓取 / 当前页抓取** 模块。
+- 原 `paiban.py` 的 Excel 题库转 PDF 功能，整合为 **生成背诵版 / 练习版 PDF** 模块。
+- 原 `bidui.py` 的 PDF 差异比对功能，整合为 **PDF 比对并导出差异题目 TXT** 模块。
+- 新增支持连接已经登录的 Edge / Chrome 浏览器，减少重复登录。
+- 新增图形化界面，降低手动修改代码配置的门槛。
+- 新增 Windows 11 与 macOS 的 WebDriver 查找和使用说明。
+
+---
+
 ## 功能特点
 
-- **自动化驱动**：自动调用 Chrome 浏览器，利用 `webdriver_manager` 自动管理驱动版本。
-- **交互式抓取**：无需复杂的逆向 API，采用“手动答题/交卷 -> 程序抓取”的半自动模式，安全且稳定。
-- **智能解析**：
-  - 支持单选题和多选题。
-  - 自动识别并清洗选项（A-G）。
-  - 自动提取正确答案（支持多选组合，如 "AB"）。
-- **增量保存**：每次抓取自动追加并保存到 Excel，具备去重功能，防止题目重复记录。
+### 1. 雨课堂题库抓取
+
+- **自动循环抓取**：可自动点击“再次答题 / 开始答题 / 交卷 / 查看试卷”，循环抓取题目。
+- **当前页抓取**：如果你已经进入“查看试卷 / 结果页”，可以直接抓取当前页面内容。
+- **支持已有题库续写**：程序会读取已有 Excel 题库，在原数据基础上继续追加。
+- **自动去重**：以题目文本作为基础标识，避免重复写入相同题目。
+- **支持 Edge / Chrome**：可启动新浏览器，也可连接已经打开并登录的浏览器。
+
+### 2. Excel 题库生成 PDF
+
+- **背诵版 PDF**：每道题下方直接显示正确答案，适合集中复习。
+- **练习版 PDF**：题目和答案分离，末尾附答案速查表，适合模拟自测。
+- **中文字体适配**：自动尝试匹配 Windows / macOS 常见中文字体。
+- **题目排版优化**：尽量避免题目和选项被拆分到不同页面，提升阅读体验。
+
+### 3. PDF 题库差异比对
+
+- **双向比对**：找出仅在文件 1 中出现的题目，以及仅在文件 2 中出现的题目。
+- **指纹比对**：忽略编号、空格、换行和部分标点差异，尽量聚焦题干本身。
+- **结果导出**：自动生成 TXT 差异报告，方便后续整理。
+
+---
 
 ## 环境要求
 
-- **Python**: 3.8+
-- **Browser**: Google Chrome
+- Python 3.10 或更高版本，推荐 Python 3.12
+- Microsoft Edge 或 Google Chrome
+- Windows 11 / macOS
 
-### 依赖库安装
+依赖库见 `requirements.txt`：
 
-在使用前，请确保安装了以下 Python 库：
-
-```bash
-pip install pandas selenium webdriver-manager openpyxl
-````
-
-> 注意：`openpyxl` 是 Pandas 写入 Excel (.xlsx) 文件所必需的依赖。
-
-## 配置说明
-
-在运行代码之前，请打开脚本文件，根据你的电脑环境修改 **配置区域**：
-
-```python
-# ================= 配置区域 =================
-# 目标网址 (通常不需要修改)
-URL = "[https://www.yuketang.cn/v2/web/index]" 
-
-# 重要：请修改为你自己的保存路径！
-SAVE_PATH = "/Users/AndyRONG/Downloads/雨课堂题库_智能版.xlsx"
-# Windows 示例: r"D:\学习资料\雨课堂题库.xlsx"
-# Mac 示例: "/Users/your_name/Downloads/雨课堂题库.xlsx"
-
-# ===========================================
+```text
+pandas
+openpyxl
+selenium
+webdriver-manager
+reportlab
+pdfplumber
 ```
 
-## 使用指南 (保姆级教程)
+---
 
-1.  **运行脚本**：
-    在终端或 IDE 中运行 Python 脚本：
+## 项目结构
 
-    ```bash
-    python paquxin.py
-    ```
+```text
+yuketang-toolkit/
+├── README.md
+├── requirements.txt
+└── yuketang_integrated_gui.py
+```
 
-2.  **登录与进入课程**：
+> 发布或上传到 GitHub 时，一般不需要提交虚拟环境、浏览器 driver、生成的 Excel、PDF、TXT 结果文件。
 
-      - 脚本会自动打开一个 Chrome 浏览器窗口。
-      - 请在浏览器中选择要登录的雨课堂（OUC默认选择长江雨课堂），然后微信扫码登录账号。
-      - 点击进入你要刷题的课程章节。
+---
 
-3.  **操作流程**：
-    此爬虫采用“交互模式”，请遵循控制台打印的指引：
+## 安装依赖
 
-    1.  点击 **【开始答题】**。
-    2.  直接点击 **【交卷】** -\> **【确认交卷】**（不需要真的做题，目的是为了看答案）。
-    3.  点击 **【查看试卷】**，直到页面加载出带有**正确答案**的详情页。
-    4.  回到运行脚本的控制台（Terminal），按下 **【回车键 (Enter)】**。
+### Windows 11
 
-4.  **查看结果**：
+打开 PowerShell，进入项目目录：
 
-      - 程序会自动抓取当前页面的所有题目。
-      - 控制台会提示：`✅ 抓取成功！本轮新增: X 题`。
-      - Excel 文件会自动更新。
+```powershell
+cd D:\path\to\yuketang-toolkit
+py -m venv yuketang_env
+.\yuketang_env\Scripts\Activate.ps1
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
+```
 
-5.  **循环操作**：
+如果 PowerShell 提示无法加载 `Activate.ps1`，请先执行：
 
-      - 在浏览器点击 **【返回】** -\> **【再次作答】** -\> **【交卷】** -\> **【查看试卷】**。
-      - 再次按 **【回车】** 抓取新的一批题目。
-      - 输入 `q` 并回车可退出程序。
+```powershell
+Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
+```
 
-##  输出文件示例
+然后重新激活虚拟环境：
 
-生成的 Excel 文件将包含以下列：
+```powershell
+.\yuketang_env\Scripts\Activate.ps1
+```
+
+### macOS
+
+打开 Terminal，进入项目目录：
+
+```bash
+cd /path/to/yuketang-toolkit
+python3 -m venv yuketang_env
+source yuketang_env/bin/activate
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
+```
+
+---
+
+## 启动程序
+
+### Windows 11
+
+```powershell
+cd D:\path\to\yuketang-toolkit
+.\yuketang_env\Scripts\Activate.ps1
+python yuketang_integrated_gui.py
+```
+
+### macOS
+
+```bash
+cd /path/to/yuketang-toolkit
+source yuketang_env/bin/activate
+python yuketang_integrated_gui.py
+```
+
+启动后会打开图形化界面，主要包括三个功能页：
+
+1. **自动抓取**
+2. **生成 PDF**
+3. **PDF 比对**
+
+---
+
+# 第一部分：雨课堂智能题库抓取工具
+
+## 使用方式一：启动新浏览器
+
+在程序的 **自动抓取** 页面中选择浏览器类型，例如 Edge 或 Chrome，然后点击启动。程序会打开雨课堂首页：
+
+```text
+https://www.yuketang.cn/v2/web/index
+```
+
+请在浏览器中登录雨课堂，并进入目标课程或目标练习页面。
+
+## 使用方式二：连接已打开的浏览器
+
+如果你已经登录雨课堂，可以先用远程调试模式打开浏览器，再让程序连接这个浏览器。这样可以减少反复登录的问题。
+
+### Windows 11 Edge
+
+```powershell
+Start-Process "msedge.exe" -ArgumentList "--remote-debugging-port=9222 --user-data-dir=$env:USERPROFILE\edge-selenium-profile"
+```
+
+### Windows 11 Chrome
+
+```powershell
+Start-Process "chrome.exe" -ArgumentList "--remote-debugging-port=9222 --user-data-dir=$env:USERPROFILE\chrome-selenium-profile"
+```
+
+### macOS Edge
+
+```bash
+open -na "Microsoft Edge" --args --remote-debugging-port=9222 --user-data-dir="$HOME/edge-selenium-profile"
+```
+
+### macOS Chrome
+
+```bash
+open -na "Google Chrome" --args --remote-debugging-port=9222 --user-data-dir="$HOME/chrome-selenium-profile"
+```
+
+启动后，可以打开下面地址检查调试端口是否可用：
+
+```text
+http://127.0.0.1:9222/json/version
+```
+
+如果能看到 JSON 内容，说明浏览器可以被程序连接。
+
+## 抓取模式说明
+
+### 自动点击并循环抓取
+
+适合当前页面有“再次答题”按钮的情况。程序会尝试自动完成以下流程：
+
+1. 点击“再次答题”或“开始答题”。
+2. 点击“交卷”。
+3. 点击“确认交卷”。
+4. 点击“查看试卷”。
+5. 抓取当前页题目、选项和答案。
+6. 保存到 Excel，并进入下一轮。
+
+### 直接抓取当前页
+
+适合你已经手动进入“查看试卷 / 结果页”的情况。程序不会自动点击答题流程，只会抓取当前页面中已经显示出来的题目和答案。
+
+## 输出 Excel 格式
+
+程序生成的 Excel 题库一般包含以下列：
 
 | 题目 | 答案 | A | B | C | D | ... |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| 下列关于Python说法正确的是？ | ABC | 简单易学 | 开源免费 | 跨平台 | 只能在Windows运行 | ... |
+| 下列关于 Python 的说法正确的是？ | ABC | 简单易学 | 开源免费 | 跨平台 | 只能在 Windows 运行 | ... |
 
-## 免责声明 (Disclaimer)
+---
 
-1.  **仅供学习交流**：本项目仅用于个人学习代码编写、自动化测试技术研究以及个人复习资料整理。
-2.  **请勿用于作弊**：严禁将本工具用于任何形式的考试作弊或商业用途。
-3.  **数据安全**：本工具运行在本地，不会上传用户的账号密码，但请妥善保管生成的题库文件。
-4.  使用本工具所产生的任何后果由使用者自行承担。
+# 第二部分：题库 Excel 转 PDF 生成器
 
------
+进入程序中的 **生成 PDF** 页面，选择已经整理好的 Excel 题库文件。
 
-# 第二部分：题库 Excel 转 PDF 生成器 (Excel to PDF Quiz Generator)
+常用配置包括：
 
-这是一个基于 Python 的实用工具，用于将 Excel 格式的题库自动转换为排版精美的 PDF 文件。在进行本部分之前，请确保你已经进行了第一部分的爬取内容，并已将生成的多个Excel文件合并成一个Excel文件，格式严格遵从**数据格式要求**（见下）。本部分代码见**paiban.py**
+- **Excel 文件**：抓取或整理后的题库文件。
+- **输出文件夹**：PDF 保存位置。
+- **PDF 文件名前缀**：用于生成输出文件名。
+- **页眉文字**：显示在 PDF 页面顶部。
+- **标题文字**：显示在 PDF 首页或文档标题区域。
+- **输出背诵版 PDF**：题目下方显示答案。
+- **输出练习版 PDF**：题目中隐藏答案，末尾附答案表。
 
-该工具专为整理“雨课堂”等平台的题库设计，能够一键生成两个版本的 PDF：
-1.  **解析版**：每道题下方紧跟正确答案，适合背诵和复习。
-2.  **练习版**：题目中不含答案，并在文档末尾附带答案速查表（方阵格式），适合模拟自测。
+设置完成后，点击 **生成 PDF**。
 
-## 功能特点
+---
 
-* **双模式输出**：同时生成“解析版”和“练习版”两个 PDF 文件。
-* **智能排版**：
-    * 自动识别单选题和多选题，并分章节排版。
-    * 题目与选项智能防跨页截断（KeepTogether），阅读体验极佳。
-    * 练习版末尾自动生成矩阵式的答案速查表。
-* **跨平台字体支持**：自动检测 macOS 和 Windows 系统下的常用中文字体（如 SimHei, PingFang, Songti 等），无需繁琐配置。
-* **PDF 安全保护**：支持设置 PDF 权限（如禁止修改、禁止复制等）。
-* **macOS 兼容性修复**：内置针对 macOS OpenSSL 环境的 `hashlib` 补丁，解决 ReportLab 在特定环境下的报错问题。
+# 第三部分：PDF 题库差异比对工具
 
-## 🛠 环境依赖
+进入程序中的 **PDF 比对** 页面，选择两个 PDF 文件和输出 TXT 路径，然后点击 **开始比对**。
 
-本项目依赖 Python 3.x 及以下第三方库：
-
-* `pandas` (数据处理)
-* `openpyxl` (读取 Excel 引擎)
-* `reportlab` (PDF 生成核心)
-
-### 安装依赖
-
-```bash
-pip install pandas openpyxl reportlab
-````
-
-## 📂 数据格式要求
-
-请准备一个 `.xlsx` Excel 文件，格式为：
-
-| 题目 | 答案 | A | B | C | D | ... |
-| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| 下列关于Python说法正确的是？ | ABC | 简单易学 | 开源免费 | 跨平台 | 只能在Windows运行 | ... |
-
-> **注意**：程序会自动过滤掉内容为空的选项列。
-
-## 快速开始
-
-
-1.  将你的题库 Excel 文件放入项目目录（例如命名为 `question_bank.xlsx`）。
-
-2.  修改脚本 `paiban.py` 顶部的配置区域：(INPUT_EXCEL_NAME内需要输入文件所在地址)
-
-    ```python
-    # ================= 配置区域 =================
-    INPUT_EXCEL_NAME = "xxxx/xxxxx/xxxxx/xxxx/question_bank.xlsx"  # 你的输入文件名
-    OUTPUT_PREFIX = "自定义姓名"        # 输出文件名前缀
-    HEADER_TEXT = "适用学期：2025年秋季学期"   # PDF 页眉文字
-    # ===========================================
-    ```
-
-3.  运行脚本：
-
-    ```bash
-    python paiban.py
-    ```
-
-4.  运行成功后，你将在同目录下看到生成的两个 PDF 文件（解析版 & 练习版）。
-
-## 高级配置
-
-### PDF 加密与权限
-
-在 `paiban.py` 代码中，你可以修改 `StandardEncryption` 的参数来调整 PDF 权限：
-
-```python
-encrypt_config = StandardEncryption(
-    userPassword="",                 # 打开密码（留空则直接打开）
-    ownerPassword="YourSecretPassword", # 权限密码
-    canPrint=1,                      # 允许打印
-    canModify=0,                     # 禁止修改
-    canCopy=1                        # 允许复制文本
-)
-```
-
-
-# 第三部分：PDF 题库差异比对工具 (PDF Question Bank Diff Tool)[2025年12月17日更新]
-
-这是一个基于 Python 的轻量级工具，用于自动比对两个 PDF 格式的题库文件，并提取出它们之间的**差异题目**。
-
-该脚本是因为两个题库之间有些题目存在重复而开发，适用于任何格式相似的单选/多选题库比对。
-
-## 功能特点
-
-* **自动提取**：使用 `pdfplumber` 精确提取 PDF 中的文本。
-* **智能去重**：通过生成“文本指纹”（去除标点、空格、编号、特殊字符），仅对比题目核心内容，忽略排版差异。
-* **双向比对**：
-    * 找出 **仅在文件 1** 中出现的题目。
-    * 找出 **仅在文件 2** 中出现的题目。
-* **自动过滤**：自动跳过页眉、页脚、参考答案页等非题目内容。
-* **结果导出**：将差异题目汇总导出为易读的 `.txt` 文本文件。
-
-## 环境依赖
-
-在使用本工具前，请确保你的环境中安装了 Python 3.x，并安装了以下依赖库：
-
-```bash
-pip install pdfplumber
-
-```
-
-*注：`re` 和 `os` 为 Python 标准库，无需单独安装。*
-
-## 快速开始
-
-### 1. 准备文件
-
-将本仓库克隆到本地，并将你需要比对的两个 PDF 文件放入项目根目录。
-
-默认识别的文件名为（可在代码中修改）：
-
-* `FILE_1`: **第一个文件.pdf**
-* `FILE_2`: **第二个文件.pdf**
-
-### 2. 运行脚本
-
-在终端中运行 Python 脚本：
-
-```bash
-python bidui.py
-
-```
-
-*(假设脚本保存为 `bidui.py`)*
-
-### 3. 查看结果
-
-运行完成后，当前目录下会生成一个 `差异题目汇总.txt` 文件，内容格式如下：
+输出结果包括：
 
 ```text
 === 对比报告 ===
-文件1: 第一个文件.pdf
-文件2: 第二个文件.pdf
+文件1: xxx.pdf
+文件2: yyy.pdf
 
-【仅在 文件1 中出现的题目】 (共 5 题):
-==================================================
-[1] 105. 这里是题目的具体内容...
-A. 选项A
-B. 选项B
-------------------------------
+【仅在 文件1 中出现的题目】
 ...
 
-【仅在 文件2 中出现的题目】 (共 3 题):
-==================================================
+【仅在 文件2 中出现的题目】
 ...
-
 ```
 
-## ⚙️ 配置说明
+本工具适合用于比较两个版本题库之间的差异，例如旧版题库与新版题库、不同课程章节导出的题库等。
 
-如果你需要比对其他文件，请直接在代码顶部修改文件名配置：
+---
 
-```python
-# 定义文件名
-FILE_1 = "你的文件A.pdf"
-FILE_2 = "你的文件B.pdf"
-OUTPUT_FILE = "输出结果.txt"
+## WebDriver 说明
 
+Selenium 控制浏览器时需要对应浏览器的 WebDriver：
+
+- Edge 需要 `msedgedriver`
+- Chrome 需要 `chromedriver`
+
+程序会优先从以下位置查找 driver：
+
+1. 虚拟环境目录
+2. 用户下载目录
+3. 系统 PATH
+4. 通过 `webdriver-manager` 自动下载
+
+如果自动下载失败，可以手动下载并放到推荐位置。
+
+### Windows 11 推荐位置
+
+```text
+yuketang_env\Scripts\msedgedriver.exe
+yuketang_env\Scripts\chromedriver.exe
 ```
 
-## 原理说明
+也可以通过环境变量指定：
 
-为了防止因为排版（如空格、换行符）或标点符号（中文逗号 vs 英文逗号）的不同导致判断错误，本工具采用了**指纹比对法**：
+```powershell
+$env:MSEDGEDRIVER_PATH="C:\path\to\msedgedriver.exe"
+$env:CHROMEDRIVER_PATH="C:\path\to\chromedriver.exe"
+```
 
-1. **正则匹配**：通过 `^\d+\.` 识别题目开始。
-2. **文本清洗**：
-* 去除题目编号（如 "1. ", "102."）。
-* 去除所有非中文字符、非英文字母和非数字（忽略标点符号和空白字符）。
+### macOS 推荐位置
 
+```text
+yuketang_env/bin/msedgedriver
+yuketang_env/bin/chromedriver
+```
 
-3. **指纹生成**：提取题干部分（选项 A 之前的内容）生成唯一指纹。
-4. **集合运算**：利用 Python 的字典查找，快速计算两个题目集合的差集。
+手动下载后可能需要添加执行权限：
 
-## 注意事项
+```bash
+chmod +x yuketang_env/bin/msedgedriver
+chmod +x yuketang_env/bin/chromedriver
+```
 
-* **PDF 格式要求**：脚本默认题目是以“数字 + 点”（如 `1. `）开头的文本格式。如果你的 PDF 是图片扫描版，本工具无法识别（需要 OCR）。
-* **答案过滤**：代码中内置了过滤“参考答案”页面的逻辑，如果你的 PDF 答案格式比较特殊，可能需要微调 `extract_questions` 函数中的过滤条件。
+### 下载地址
+
+EdgeDriver：
+
+```text
+https://developer.microsoft.com/en-us/microsoft-edge/tools/webdriver
+```
+
+ChromeDriver：
+
+```text
+https://googlechromelabs.github.io/chrome-for-testing/
+```
+
+> 注意：driver 的主版本号需要和浏览器主版本号一致。例如 Edge 是 `147.x`，EdgeDriver 也应使用 `147.x`。
+
+---
+
+## 常见问题
+
+### 1. Windows 找不到 Python
+
+请确认安装 Python 时勾选了 `Add python.exe to PATH`。也可以在 PowerShell 中尝试：
+
+```powershell
+py --version
+```
+
+如果 `py` 可用，建议使用 `py -m venv yuketang_env` 创建虚拟环境。
+
+### 2. WebDriver 下载失败
+
+如果日志出现类似：
+
+```text
+Could not reach host
+Failed to resolve
+```
+
+通常说明当前网络无法访问 WebDriver 下载源。请手动下载对应版本的 driver，并放入虚拟环境目录。
+
+### 3. EdgeDriver / ChromeDriver 版本不匹配
+
+请先查看浏览器版本。
+
+Edge：
+
+```text
+edge://settings/help
+```
+
+Chrome：
+
+```text
+chrome://settings/help
+```
+
+然后下载相同主版本号的 driver。
+
+### 4. 连接已打开浏览器失败
+
+普通双击打开的浏览器不能直接被 Selenium 连接。必须使用 `--remote-debugging-port=9222` 命令启动浏览器。
+
+如果仍然失败，请尝试：
+
+- 确认旧浏览器进程已经完全退出。
+- 换一个新的 `--user-data-dir` 目录。
+- 打开 `http://127.0.0.1:9222/json/version` 检查端口是否正常。
+
+### 5. macOS 提示 tkinter 缺失
+
+macOS 如果运行时报 tkinter 相关错误，建议安装 python.org 官方 Python，或使用带 Tk 支持的 Homebrew Python。
+
+---
+
+## 免责声明 (Disclaimer)
+
+1. **仅供学习交流**：本项目仅用于个人学习代码编写、自动化测试技术研究以及个人复习资料整理。
+2. **请勿用于作弊**：严禁将本工具用于任何形式的考试作弊、违规刷题或商业用途。
+3. **数据安全**：本工具运行在本地，不会主动上传用户账号、密码或题库文件，但请妥善保管生成的 Excel / PDF / TXT 文件。
+4. **平台规则**：使用者应自行遵守雨课堂及所在学校、课程的相关规定。
+5. **责任说明**：使用本工具所产生的任何后果由使用者自行承担。
+
+---
 
 ## 写在最后
-本项目由于作者时间有限，仅实现了半自动化（其中提交、查看答案等操作均需手动化），欢迎各位OUCer传承此项目，继续开发登录后“一条龙自动化”项目，有意开发者可联系作者！
+
+本项目延续原 STORM_yuketang 项目的思路：用尽可能直观、稳定的方式辅助整理个人复习资料。  
+原项目已经完成了题目抓取、PDF 排版和题库比对的核心逻辑；本版本在此基础上进行了整合与界面化改造，希望能让更多 有类似需求的同学更容易使用和继续维护。
+
+欢迎继续改进代码、补充适配规则、优化界面体验，也欢迎提交 Issue 或 Pull Request。
+
+如果觉得好用，欢迎点个 Star ⭐️！
 
 ## License
 
-[MIT License](https://www.google.com/search?q=LICENSE)
+MIT License
 
------
-如果觉得好用，欢迎点个 Star ⭐️！
-**Author**: [AndyRong921](https://www.google.com/search?q=https://github.com/AndyRong921)
+## Author
+
+Original Author: [AndyRong921](https://github.com/AndyRong921)  
+Maintainer / Toolkit Update: [HisimeeLos](https://github.com/HisimeeLos)
