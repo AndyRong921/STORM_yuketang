@@ -1,7 +1,9 @@
 # 雨课堂题库工具箱 (Yuketang Toolkit)
 
+
 > 本项目延续自原 **STORM_yuketang** 项目，在原有「题库抓取」「Excel 转 PDF」「PDF 题库差异比对」三部分功能基础上，整合为一个图形化工具箱。  
 > 新版本保留原项目“半自动、可复习、可整理”的使用思路，并进一步加入浏览器连接、自动循环抓取、GUI 操作和跨平台适配。
+
 
 ## 更新说明 [2026.05]
 
@@ -152,9 +154,9 @@ python yuketang_integrated_gui.py
 
 ---
 
-# 第一部分：雨课堂智能题库抓取工具
+## 第一部分：雨课堂智能题库抓取工具
 
-## 使用方式一：启动新浏览器
+### 使用方式一：启动新浏览器
 
 在程序的 **自动抓取** 页面中选择浏览器类型，例如 Edge 或 Chrome，然后点击启动。程序会打开雨课堂首页：
 
@@ -164,23 +166,23 @@ https://www.yuketang.cn/v2/web/index
 
 请在浏览器中登录雨课堂，并进入目标课程或目标练习页面。
 
-## 使用方式二：连接已打开的浏览器
+### 使用方式二：连接已打开的浏览器
 
 如果你已经登录雨课堂，可以先用远程调试模式打开浏览器，再让程序连接这个浏览器。这样可以减少反复登录的问题。
 
-### Windows 11 Edge
+#### Windows 11 Edge
 
 ```powershell
 Start-Process "msedge.exe" -ArgumentList "--remote-debugging-port=9222 --user-data-dir=$env:USERPROFILE\edge-selenium-profile"
 ```
 
-### Windows 11 Chrome
+#### Windows 11 Chrome
 
 ```powershell
 Start-Process "chrome.exe" -ArgumentList "--remote-debugging-port=9222 --user-data-dir=$env:USERPROFILE\chrome-selenium-profile"
 ```
 
-### macOS Edge
+#### macOS Edge
 
 ```bash
 open -na "Microsoft Edge" --args --remote-debugging-port=9222 --user-data-dir="$HOME/edge-selenium-profile"
@@ -200,9 +202,9 @@ http://127.0.0.1:9222/json/version
 
 如果能看到 JSON 内容，说明浏览器可以被程序连接。
 
-## 抓取模式说明
+### 抓取模式说明
 
-### 自动点击并循环抓取
+#### 自动点击并循环抓取
 
 适合当前页面有“再次答题”按钮的情况。程序会尝试自动完成以下流程：
 
@@ -213,11 +215,11 @@ http://127.0.0.1:9222/json/version
 5. 抓取当前页题目、选项和答案。
 6. 保存到 Excel，并进入下一轮。
 
-### 直接抓取当前页
+#### 直接抓取当前页
 
 适合你已经手动进入“查看试卷 / 结果页”的情况。程序不会自动点击答题流程，只会抓取当前页面中已经显示出来的题目和答案。
 
-## 输出 Excel 格式
+### 输出 Excel 格式
 
 程序生成的 Excel 题库一般包含以下列：
 
@@ -227,7 +229,7 @@ http://127.0.0.1:9222/json/version
 
 ---
 
-# 第二部分：题库 Excel 转 PDF 生成器
+## 第二部分：题库 Excel 转 PDF 生成器
 
 进入程序中的 **生成 PDF** 页面，选择已经整理好的 Excel 题库文件。
 
@@ -245,7 +247,7 @@ http://127.0.0.1:9222/json/version
 
 ---
 
-# 第三部分：PDF 题库差异比对工具
+## 第三部分：PDF 题库差异比对工具
 
 进入程序中的 **PDF 比对** 页面，选择两个 PDF 文件和输出 TXT 路径，然后点击 **开始比对**。
 
@@ -267,7 +269,7 @@ http://127.0.0.1:9222/json/version
 
 ---
 
-## WebDriver 说明
+### WebDriver 说明
 
 Selenium 控制浏览器时需要对应浏览器的 WebDriver：
 
@@ -283,7 +285,7 @@ Selenium 控制浏览器时需要对应浏览器的 WebDriver：
 
 如果自动下载失败，可以手动下载并放到推荐位置。
 
-### Windows 11 推荐位置
+#### Windows 11 推荐位置
 
 ```text
 yuketang_env\Scripts\msedgedriver.exe
@@ -297,7 +299,7 @@ $env:MSEDGEDRIVER_PATH="C:\path\to\msedgedriver.exe"
 $env:CHROMEDRIVER_PATH="C:\path\to\chromedriver.exe"
 ```
 
-### macOS 推荐位置
+#### macOS 推荐位置
 
 ```text
 yuketang_env/bin/msedgedriver
@@ -311,7 +313,7 @@ chmod +x yuketang_env/bin/msedgedriver
 chmod +x yuketang_env/bin/chromedriver
 ```
 
-### 下载地址
+#### 下载地址
 
 EdgeDriver：
 
@@ -404,6 +406,14 @@ macOS 如果运行时报 tkinter 相关错误，建议安装 python.org 官方 P
 欢迎继续改进代码、补充适配规则、优化界面体验，也欢迎提交 Issue 或 Pull Request。
 
 如果觉得好用，欢迎点个 Star ⭐️！
+
+<a href="https://star-history.com/#AndyRong921/STORM_yuketang&Date">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=AndyRong921/STORM_yuketang&type=Date&theme=dark" />
+    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=AndyRong921/STORM_yuketang&type=Date" />
+    <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=AndyRong921/STORM_yuketang&type=Date" />
+  </picture>
+</a>
 
 ## License
 
