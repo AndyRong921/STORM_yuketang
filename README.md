@@ -1,5 +1,9 @@
 # 雨课堂题库工具箱 (Yuketang Toolkit)
-
+![OS](https://img.shields.io/badge/OS-Linux%2C%20Windows%2C%20macOS-blue)
+![Python](https://img.shields.io/badge/Python-3.8+-green)
+![PyTorch](https://img.shields.io/badge/PyTorch-2.0.0+-orange)
+![GitHub stars](https://img.shields.io/github/stars/AndyRong921/STORM_yuketang?style=social)
+![GitHub forks](https://img.shields.io/github/forks/AndyRong921/STORM_yuketang?style=social)
 
 > 本项目延续自原 **STORM_yuketang** 项目，在原有「题库抓取」「Excel 转 PDF」「PDF 题库差异比对」三部分功能基础上，整合为一个图形化工具箱。  
 > 新版本保留原项目“半自动、可复习、可整理”的使用思路，并进一步加入浏览器连接、自动循环抓取、GUI 操作和跨平台适配。
