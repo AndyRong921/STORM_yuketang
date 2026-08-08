@@ -118,11 +118,10 @@ def run_interactive_spider():
                     
                     # --- 判断题型逻辑 ---
                     is_judgment = False
-                    # 如果只有2个选项，且包含"正确/错误"，判定为判断题
-                    if len(opts) == 2:
-                        opt_str = "".join(opts)
-                        if "正确" in opt_str or "错误" in opt_str or "对" in opt_str or "错" in opt_str:
-                            is_judgment = True
+                    # 如果选项或答案包含"正确/错误"或"对/错"，判定为判断题
+                    opt_str = "".join(opts)
+                    if any(k in opt_str for k in ["正确", "错误", "对", "错"]) or any(k in raw_ans for k in ["正确", "错误", "对", "错"]):
+                        is_judgment = True
 
                     if is_judgment:
                         # 判断题：答案转中文，选项列清空
